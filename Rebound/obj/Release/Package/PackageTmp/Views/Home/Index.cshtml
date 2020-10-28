@@ -1,0 +1,834 @@
+﻿@model Rebound.Models.Reservation
+@{
+    ViewBag.Title = "Dashboard";
+
+}
+@{ 
+    var TimeZoneOffset = System.Web.Configuration.WebConfigurationManager.AppSettings["TimeZoneOffset"];
+    TimeZoneOffset = TimeZoneOffset.ToString();
+}
+<style>
+    #divBall label {
+        position: absolute;
+        bottom: 15px;
+        right: 34px;
+        opacity: .2;
+        z-index: 0;
+    }
+</style>
+<div id='calendar'></div>
+<input type="hidden" value="@TimeZoneOffset" id="timeZoneOffset" />
+<div id="loderImg" style="display:none;">
+    <div style="
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #00000069;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;">
+        <img id="loading-image" src="~/Uploads/assets/ajax-loader.gif" height="50" />
+    </div>
+</div>
+<div id="ModalUpdate" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header d-flex justify-content-between">
+                <h4 class="modal-title">Edit Reservation</h4>
+                <button type="button" class="btn btn-default text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <input type="hidden" id="hdEventID" value="0" />
+                    <input type="hidden" id="resurce" value="0" />
+                    <input type="hidden" id="txtStart" value="0" />
+                    <input type="hidden" id="txtEnd" value="0" />
+                    <input type="hidden" id="ddThemeColor" value="0" />
+                    <strong>Customer Information :</strong>
+                    <div class="col-sm-12 d-sm-flex p-sm-0 m-sm-0">
+                        <div class="form-group col-sm-6 pl-sm-0">
+                            <input type="text" class="form-control" id="firstName" readonly value="" placeholder="First Name" />
+                        </div>
+                        <div class="form-group col-sm-6 pr-sm-0">
+                            <input type="text" class="form-control" id="lastName" readonly value="" placeholder="Last Name" />
+                        </div>
+                    </div>
+                    <div class="col-sm-12  p-sm-0 m-sm-0">
+                        <div class="form-group">
+                            <input type="text" class="form-control" readonly id="mobileNumber" value="" placeholder="Mobile Number" />
+                        </div>
+                    </div>
+                    <strong>Reservation Information :</strong>
+                    <div class="col-sm-12 d-sm-flex p-sm-0 m-sm-0">
+                        <div class="form-group col-sm-6 pl-sm-0">
+                            <label>Price</label>
+                            <input type="number" class="form-control" id="textPrice" value="" placeholder="Price" />
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="checkbox  pl-sm-0">
+                                <label><input type="checkbox" id="ballrental" /> Ball rental</label>
+                            </div>
+                            <div class="form-group pr-sm-0" id="ballrentUpdate" style="display:none">
+                                <label>Ball Rental price</label>
+                                <input type="number" class="form-control" id="textEPrice" value="" placeholder="Ball rental price" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 d-sm-flex p-sm-0 m-sm-0">
+                        <div class="form-group col-sm-6 pl-sm-0">
+                            <label>Billing status</label>
+                            @Html.EnumDropDownListFor(model => model.BillingStatus, htmlAttributes: new { @class = "form-control", @id = "paymentType" })
+                        </div>
+                        <div class="form-group col-sm-6 pr-sm-0">
+                            <label>Paid amount</label>
+                            <input type="number" class="form-control" id="payAmount" value="" placeholder="Paid amount" />
+                        </div>
+                    </div>
+                    <div class="form-group row col-sm-12">
+                        <label class="col-sm-4">Description</label>
+                        <textarea id="txtDescription" rows="3" class="form-control col-sm-8"></textarea>
+                    </div>
+                    <div class="modal-footer d-sm-flex justify-content-sm-between">
+                        <div>
+                            <button type="button" id="btnEditSubmit" class="btn btn-success">Save</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                        <button type="button" class="btn btn-outline-danger" id="btnDeleteUpdate">Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="ModalReservation" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header d-flex justify-content-between">
+                <h4 class="modal-title">Save Reservation</h4>
+                <button type="button" class="btn btn-default text-white" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form class="form-horizontal">
+                    <input type="hidden" id="saveEventID" value="" />
+                    <input type="hidden" id="txtStartsave" value="" />
+                    <input type="hidden" id="txtEndsave" value="" />
+                    <input type="hidden" id="resurcesave" value="" />
+                    <div class="d-flex">
+                        <div class="form-group" style="width: calc(100% - 32px);">
+                            <input id="getCustomer" placeholder="Search for customer" class="form-control" />
+                            <input id="clientSave" type="hidden" class="form-control" value="" />
+                        </div>
+                        <div style="width:32px;">
+                            <div class="checkbox">
+                                <label><input type="checkbox" id="addNewCustomer" hidden /> <span type="button" class="fa fa-plus-circle fa-1x p-sm-2 btn btn-primary" id="addIcon"></span></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="divNewCustomer" style="display:none">
+                        <strong>Customer Information :</strong>
+                        <div class="col-sm-12 d-sm-flex p-sm-0 m-sm-0">
+                            <div class="form-group col-sm-6 pl-sm-0">
+                                <input type="text" class="form-control" id="firstNameSave" value="" placeholder="First Name" />
+                            </div>
+                            <div class="form-group col-sm-6 pr-sm-0">
+                                <input type="text" class="form-control" id="lastNameSave" value="" placeholder="Last Name" />
+                            </div>
+                        </div>
+                        <div class="col-sm-12  p-sm-0 m-sm-0">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="mobileNumberSave" value="" placeholder="Mobile Number" />
+                            </div>
+                        </div>
+                    </div>
+                    <strong>Reservation Information :</strong>
+                    <div class="col-sm-12 d-sm-flex p-sm-0 m-sm-0">
+                        <div class="form-group col-sm-6 pl-sm-0">
+                            <label>Price</label>
+                            <input type="number" class="form-control" id="priceSave" value="" placeholder="Price" />
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="checkbox  pl-sm-0">
+                                <label><input type="checkbox" id="ballrentalSave" /> Ball rental</label>
+                            </div>
+                            <div class="form-group  pr-sm-0" id="divBall" style="display:none">
+                                <label>Ball rental price</label>
+                                <input type="number" class="form-control" id="priceESave" value="" placeholder="Ball rental price" />
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-sm-12 d-sm-flex p-sm-0 m-sm-0">
+                        <div class="form-group col-sm-6 pl-sm-0">
+                            <label>Billing status</label>
+                            @Html.EnumDropDownListFor(model => model.BillingStatus, htmlAttributes: new { @class = "form-control", @id = "paymentTypeSave" })
+                        </div>
+                        <div class="form-group col-sm-6 pr-sm-0">
+                            <label>Paid amount</label>
+                            <input type="number" class="form-control" id="payAmountSave" value="" placeholder="Paid amount" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="txtDescriptionSave" rows="3" class="form-control"></textarea>
+                    </div>
+                    <div class="col-sm-12 d-sm-flex p-sm-0 m-sm-0">
+                        <div class="checkbox col-sm-6 pl-sm-0">
+                            <label><input type="checkbox" id="advancereservation" /> Repeat weekly/month</label>
+                        </div>
+                    </div>
+                    <button type="button" id="btnReservation" class="btn btn-success">Save</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<link href='~/Content/scheduler/main.css' rel='stylesheet' />
+<link href='~/Content/scheduler/timeline-main.css' rel='stylesheet' />
+<link href='~/Content/scheduler/resource-timeline-main.css' rel='stylesheet' />
+<style>
+    .ui-menu {
+        z-index: 9999;
+    }
+
+    .newScroll {
+        overflow: auto;
+        overflow-y: hidden;
+        white-space: nowrap;
+    }
+</style>
+@section Scripts{
+    <script src='~/Scripts/scheduler/scheduler.js'></script>
+    <script src='~/Scripts/scheduler/moment.js'></script>
+    <script src='~/Scripts/scheduler/timeline-main.js'></script>
+    <script src='~/Scripts/scheduler/resource-common-main.js'></script>
+    <script src='~/Scripts/scheduler/resource-timeline-main.js'></script>
+
+
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+            var qCustomer = "";
+            var today = new Date();
+            today = moment(today).format('YYYY-MM-DD');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                plugins: ['interaction', 'dayGrid', 'timeGrid', 'resourceTimeline' ],
+                //defaultDate: today,
+                titleFormat:{ year: 'numeric', month: 'long', day: 'numeric' },
+                now:  today,
+                minTime: '08:00',
+                maxTime: '29:00',
+                aspectRatio: 1.8,
+                scrollTime: '08:00',
+                header: {
+                    left: 'today prev,next',
+                    center: 'title',
+                    right: 'resourceTimelineDay,resourceTimelineThreeDays,timeGridWeek,dayGridMonth'
+                },
+                defaultView: 'resourceTimelineDay',
+                views: {
+                    resourceTimelineThreeDays: {
+                        type: 'resourceTimeline',
+                        duration: { days: 2 },
+                        buttonText: '2 days'
+                    }
+                },
+                eventOverlap: false, // will cause the event to take up entire resource height
+                resourceAreaWidth: '15%',
+                resourceLabelText: 'Items',
+                editable: true,
+                selectable: true,
+                lazyFetching: false,
+                resources: function (info, successCallback, failureCallback) {
+                    $.ajax({
+                        type: 'GET',
+                        cache: false,
+                        url: "/home/GetEvents",
+                        data: { "start": moment(info.start).startOf('day').format('YYYY-MM-DD HH:mm:ss'), "end": moment(info.end).endOf('day').format('YYYY-MM-DD HH:mm:ss')},
+                        success: function (response) {
+                            successCallback(response.Item.map(function (e) {
+                                return {
+                                    id: e.id,
+                                    title: e.name,
+                                }
+                            })
+                            );
+                        },
+                        error: function (response) {
+                            failureCallback(response);
+                        },
+                    });
+                },
+                events: function (info, successCallback, failureCallback) {
+                    $('.fc-toolbar .fc-center h2').hide();
+                    $.ajax({
+                        type: 'GET',
+                        url: "/home/GetEvents",
+                        cache: false,
+                        data: { "start": moment(info.start).startOf('day').format("YYYY-MM-DD HH:mm:ss"), "end": moment(info.end).endOf('day').format("YYYY-MM-DD HH:mm:ss"), "qcustomer":qCustomer  },
+                        success: function (response) {
+                            successCallback(
+                                response.Data.map(function (event) {
+                                    return {
+                                        id: event.id,
+                                        title: event.title + ' - ' +  moment(event.start).utcOffset("@TimeZoneOffset").format("hh:mm a") + ' - ' + moment(event.end).utcOffset("@TimeZoneOffset").format("hh:mm a"),
+                                        resourceId: event.resourceId,
+                                        description: event.description,
+                                        start: moment(event.start).utcOffset("@TimeZoneOffset").format("YYYY-MM-DD HH:mm:ss"),
+                                        end: moment(event.end).utcOffset("@TimeZoneOffset").format("YYYY-MM-DD HH:mm:ss"),
+                                        color: event.color,
+                                        allDay: event.allDay,
+                                    }
+                                })
+                            );
+                            theTitle(info);
+                            $('.fc-toolbar .fc-center h2').show();
+                        },
+                        error: function (response) {
+                            failureCallback(response);
+                        },
+                    });
+                },
+                eventClick: function (calEvent, jsEvent, view) {
+                    selectedEvent = calEvent;
+                    UpdateReservation(calEvent.event.id);
+                },
+                editable: true,
+                eventResize: function (event) {
+                    var id = event.event._def.resourceIds[0];
+                    var now = moment(event.event.end).format("YYYY-MM-DD HH:mm:ss");
+                    var then = moment(event.event.start).format("YYYY-MM-DD HH:mm:ss");
+                    var ms = moment(now,"YYYY-MM-DD HH:mm:ss").diff(moment(then,"YYYY-MM-DD HH:mm:ss"));
+                    var d = moment.duration(ms);
+                    var time = Math.floor(d._milliseconds / 1000 / 60 / 30);
+                    $.ajax({
+                        url: '/home/GetPrice',
+                        data: { 'id': id},
+                        success: function (res) {
+                            if (res.result != null) {
+                                var price = res.result * time;
+                                 var edit = {
+                                    Id: event.event.id,
+                                    Price:price,
+                                    ScheduleTitle: event.event.title,
+                                    Fromdate: moment(event.event.start).format("YYYY-MM-DD HH:mm:ss"),
+                                    ToDate: event.event.end != null ? moment(event.event.end).format("YYYY-MM-DD HH:mm:ss") : null,
+                                    Note: event.event.extendedProps.description,
+                                    Color: event.event.backgroundColor,
+                                    IsFullDay: event.event.allDay,
+                                    ItemId: event.event._def.resourceIds[0]
+                                };
+                                if (confirm('Are you sure, you update the reservation ?')) {
+                                    UpdateEvent(edit);
+                                } else {
+                                    calendar.refetchEvents();
+                                }
+
+                            }
+                        },
+                        error: function () {
+                            alert('Failed');
+                        }
+                    })
+                },
+                select: function (get) {
+                    var data = {
+                        ItemId: get.resource.id,
+                        Fromdate: moment(get.start).format("YYYY-MM-DD HH:mm:ss"),
+                        ToDate: moment(get.end).format("YYYY-MM-DD HH:mm:ss"),
+                    };
+                    openSaveResarvain(data);
+                    $('#addIcon').addClass('fa-plus-circle');
+                    $('#addIcon').removeClass('fa-minus-circle');
+                    $("#getCustomer").val('');
+                    $("#ballrentalSave").prop("checked", false);
+                    $("#advancereservation").prop("checked", false);
+                    $("#addNewCustomer").prop("checked", false);
+                    $('#paymentTypeSave').val(0);
+                    $('#divNewCustomer').hide();
+                    $('#priceESave').val(0);
+                    $('#divBall').hide();
+                },
+                eventDrop: function (event) {
+                    var id = event.event._def.resourceIds[0];
+                    var now = moment(event.event.end).format("YYYY-MM-DD HH:mm:ss");
+                    var then = moment(event.event.start).format("YYYY-MM-DD HH:mm:ss");
+                    var ms = moment(now,"YYYY-MM-DD HH:mm:ss").diff(moment(then,"YYYY-MM-DD HH:mm:ss"));
+                    var d = moment.duration(ms);
+                    var time = Math.floor(d._milliseconds / 1000 / 60 / 30);
+                    $.ajax({
+                        url: '/home/GetPrice',
+                        data: { 'id': id},
+                        success: function (res) {
+                            if (res.result != null) {
+                                var price = res.result * time;
+                                 var edit = {
+                                    Id: event.event.id,
+                                    Price:price,
+                                    ScheduleTitle: event.event.title,
+                                    Fromdate: moment(event.event.start).format("YYYY-MM-DD HH:mm:ss"),
+                                    ToDate: event.event.end != null ? moment(event.event.end).format("YYYY-MM-DD HH:mm:ss") : null,
+                                    Note: event.event.extendedProps.description,
+                                    Color: event.event.backgroundColor,
+                                    IsFullDay: event.event.allDay,
+                                    ItemId: event.event._def.resourceIds[0]
+                                };
+
+                                if (confirm('Are you sure, you update the reservation ?')) {
+                                    UpdateEvent(edit);
+                                } else {
+                                    calendar.refetchEvents();
+                                }
+                            }
+                        },
+                        error: function () {
+                            alert('Failed');
+                        }
+                    })
+                }
+            });
+            $(function () {
+                $("#getCustomer").autocomplete({
+                    source: function (request, response) {
+                         $.ajax({
+                             url: '@Url.Action("GetCustomerData","Home")',
+                             dataType: "json",
+                             data: { search: $("#getCustomer").val(),request:1},
+                             success: function (data) {
+                                 if(!data.length){
+                                    var result = [
+                                        {
+                                            label: 'No results found, Click on + icon to add new customer',
+                                            value: response.term
+                                        }
+                                    ];
+                                    response(result);
+                                }
+                                else{
+                                  response($.map(data, function (item) {
+                                     return { label: item.Code + " - " + item.FirstName +" " + item.LastName + " - " + item.Mobile, Id: item.Id };
+                                 }))
+                                }
+                             }
+                         })
+                    },
+                    minLength: 3,
+                    select: function (event, ui) {
+                        $(this).val(ui.item.label); // display the selected text
+                        var id = ui.item.Id; // selected value
+                        $("#clientSave").val(id);
+                         return false;
+                    }
+                });
+            });
+            $('#qSearch').click(function () {
+                if ( $('#qcustomervalue').val() != '') {
+                    if ($("#qSearch").hasClass("fa-search")) {
+                        $('#qSearch').addClass('fa-times');
+                        $('#qSearch').removeClass('fa-search');
+
+                    } else {
+                        $('#qSearch').addClass('fa-search');
+                        $('#qSearch').removeClass('fa-times');
+                        $('#qcustomervalue').val('');
+                    };
+                     qCustomer = $('#qcustomervalue').val().trim();
+                    calendar.refetchEvents();
+                }
+
+            });
+            $(document).keypress(function (e) {
+                if (e.which == 13) {
+                    e.preventDefault();
+                    if ($('#qcustomervalue').val() != '') {
+                        if ($("#qSearch").hasClass("fa-search")) {
+                            $('#qSearch').addClass('fa-times');
+                            $('#qSearch').removeClass('fa-search');
+
+                        } else {
+                            $('#qSearch').addClass('fa-search');
+                            $('#qSearch').removeClass('fa-times');
+                            $('#qcustomervalue').val('');
+                        };
+                        qCustomer = $('#qcustomervalue').val().trim();
+                        calendar.refetchEvents();
+                    } else {
+                        $('#qSearch').addClass('fa-search');
+                        $('#qSearch').removeClass('fa-times');
+                        $('#qcustomervalue').val('');
+                        qCustomer = $('#qcustomervalue').val().trim();
+                        calendar.refetchEvents();
+                    }
+                }
+             });
+
+            $('#qdatevalue').change(function () {
+
+                var day = $('#qdatevalue').val().trim();
+                if (day != '') {
+                    today = moment(day).format('YYYY-MM-DD');
+                    calendar.changeView('resourceTimelineDay', today);
+                    $('#qdatevalue').val('');
+                }
+            });
+            $('.datepicker').datepicker({ format: 'YYYY-MM-DD' });
+            function theTitle(date) {
+                var now = moment(date.end).format("DD/MM/YYYY HH:mm:ss");
+                var then = moment(date.start).format("DD/MM/YYYY HH:mm:ss");
+                var ms = moment(now,"DD/MM/YYYY HH:mm:ss").diff(moment(then,"DD/MM/YYYY HH:mm:ss"));
+                var d = moment.duration(ms);
+                var time = Math.floor(d._milliseconds / 1000 / 60 / 60 / 24);
+                if (time == 1) {
+                    var newdate = moment(date.start).format('dddd DD MMMM, YYYY');
+                    $('.fc-toolbar .fc-center h2').text(newdate);
+                };
+                $('.fc-resourceTimelineDay-button').click(function () {
+                    if ($('.fc-today-button').prop('disabled', true)) {
+                        var day = new Date();
+                        today = moment(day).format('YYYY-MM-DD');
+                        var newdate = moment(day).format('dddd DD MMMM, YYYY');
+                        $('.fc-toolbar .fc-center h2').text(newdate);
+                        calendar.changeView('resourceTimelineDay', today);
+                    } else {
+                        var newdate = moment(date.start).format('dddd DD MMMM, YYYY');
+                        $('.fc-toolbar .fc-center h2').text(newdate);
+                    }
+                });
+                $('.fc-timeline .fc-body .fc-time-area .fc-scroller').addClass("newScroll");
+               // DoubleScroll(document.getElementsByClassName('newScroll'));
+            };
+
+            function DoubleScroll(element) {
+                var scrollbar = document.createElement('div');
+                scrollbar.appendChild(document.createElement('div'));
+                scrollbar.style.overflow = 'auto';
+                scrollbar.style.overflowY = 'hidden';
+                scrollbar.firstChild.style.width = element.scrollWidth+'px';
+                scrollbar.firstChild.style.paddingTop = '1px';
+                scrollbar.firstChild.appendChild(document.createTextNode('\xA0'));
+                scrollbar.onscroll = function() {
+                    element.scrollLeft = scrollbar.scrollLeft;
+                };
+                element.onscroll = function() {
+                    scrollbar.scrollLeft = element.scrollLeft;
+                };
+                element.parentNode.insertBefore(scrollbar, element);
+                element.pae
+            }
+
+            //
+
+            function UpdateReservation(id) {
+                $.ajax({
+                    type: "POST",
+                    url: '/home/GetReservationData',
+                    data: { 'id': id },
+                    success: function (data) {
+                        if (data.result != null) {
+
+                            var fName = data.client[0].FirstName;
+                            var lName = data.client[0].LastName;
+                            var mobile = data.client[0].Mobile;
+                            var startdate = moment(data.result[0].StartedAt).utcOffset("@TimeZoneOffset").format("YYYY-MM-DD HH:mm:ss");
+                            var enddate = moment(data.result[0].EndAt).utcOffset("@TimeZoneOffset").format("YYYY-MM-DD HH:mm:ss");
+                            var id = data.result[0].Id;
+                            $('#firstName').val(fName);
+                            $('#lastName').val(lName);
+                            $('#mobileNumber').val(mobile);
+
+                            if (data.result[0].IsBallRent == true) {
+                                $('#ballrental').prop("checked", true);
+                                $('#ballrentUpdate').show();
+
+                            } else {
+                                $('#ballrental').prop("checked", false);
+                                $('#ballrentUpdate').hide();
+                            }
+
+                            $('#textPrice').val(data.result[0].Price);
+                            $('#textEPrice').val(data.result[0].ExtraitemPrice);
+                            $('#paymentType').val(data.result[0].BillingStatus);
+                            $('#payAmount').val(data.result[0].PaidPrice);
+                            $('#hdEventID').val(id);
+                            $('#resourceIds').val(data.result[0].Client);
+                            $('#txtStart').val(startdate);
+                            $('#txtEnd').val(enddate);
+                            $('#txtDescription').val(data.result[0].Note);
+                            $('#ddThemeColor').val(data.result[0].Color);
+                            $('#resurce').val(data.result[0].ItemId);
+                        }
+                            $('#ModalUpdate').modal();
+                    },
+                    error: function () {
+                        alert('Failed');
+                    }
+                    })
+
+            }
+            function openSaveResarvain(data) {
+                if (data != null) {
+                    var startdate = data.Fromdate;
+                    var enddate = data.ToDate;
+                    $('#txtStartsave').val(startdate);
+                    $('#txtEndsave').val(enddate);
+                    $('#resurcesave').val(data.ItemId);
+                    var id = data.ItemId;
+                    var now = moment(enddate).format("DD/MM/YYYY HH:mm:ss");
+                    var then = moment(startdate).format("DD/MM/YYYY HH:mm:ss");
+                    var ms = moment(now,"DD/MM/YYYY HH:mm:ss").diff(moment(then,"DD/MM/YYYY HH:mm:ss"));
+                    var d = moment.duration(ms);
+                    var time = Math.floor(d._milliseconds / 1000 / 60 / 30);
+                    $.ajax({
+                        url: '/home/GetPrice',
+                        data: { 'id': id},
+                        success: function (res) {
+                            if (res.result != null) {
+                                var price = res.result * time;
+                                $('#priceSave').val(price);
+                               $('#ModalReservation').modal();
+                            }
+                        },
+                        error: function () {
+                            alert('Failed');
+                        }
+                    })
+                }
+
+            };
+            $('#btnDeleteUpdate').click(function () {
+                var id = $('#hdEventID').val();
+                if (id != null && confirm('Are you sure to delete this reservation?')) {
+                    $.ajax({
+                        type: "POST",
+                        url: '/home/CancelReservation',
+                        data: { 'id': id},
+                        success: function (data) {
+                            if (data.status) {
+                                calendar.refetchEvents();
+                                $('#ModalUpdate').modal('hide');
+                            }
+                        },
+                        error: function () {
+                            alert('Failed');
+                        }
+                    })
+                }
+            });
+            $('#btnEditSubmit').click(function () {
+                if ($('#resurce').val().trim() == "") {
+                    alert('Item required');
+                    return;
+                }
+                if ($('#txtStart').val().trim() == "") {
+                    alert('Start date required');
+                    return;
+                }
+                var data = {
+                    Id: $('#hdEventID').val(),
+                    ItemId: $('#resurce').val(),
+                    Fromdate: $('#txtStart').val(),
+                    ToDate: $('#txtEnd').val(),
+                    Note: $('#txtDescription').val(),
+                    Color: $('#ddThemeColor').val(),
+                    Price: $('#textPrice').val(),
+                    BillingStatus : $('#paymentType').val(),
+                    PaidPrice: $(' #payAmount').val(),
+                    ExtraitemPrice: $('#textEPrice').val(),
+                    IsBallRent: $('#ballrental').is(':checked') ? true : false,
+                }
+                UpdateEvent(data);
+            });
+
+            function UpdateEvent(data) {
+                $.ajax({
+                    type: "POST",
+                    url: '/home/UpdateEvent',
+                    beforeSend: function() {
+                           $("#loderImg").show();
+                    },
+                    data: data,
+                    success: function (data) {
+
+                        if (data.status == true) {
+                            calendar.refetchEvents();
+                            ClearReservationUpdate();
+                            $("#loderImg").hide();
+                            $('#ModalUpdate').modal('hide');
+                        }
+                        else { alert('Update Failed'); }
+                    },
+                    error: function () {
+                        alert('Failed');
+                    }
+                })
+            };
+            function ClearReservationUpdate() {
+                $('#hdEventID').val('');
+                $('#resurce').val('');
+                $('#txtStart').val('');
+                $('#txtEnd').val('');
+                $('#txtDescription').val('');
+                $('#ddThemeColor').val('');
+                $('#textPrice').val('');
+                $('#payAmount').val('');
+                $('#textEPrice').val('');
+            }
+            $('#addNewCustomer').change(function () {
+                if ($(this).is(':checked')) {
+                    $('#divNewCustomer').show();
+                    $('#addIcon').addClass('fa-minus-circle');
+                    $('#addIcon').removeClass('fa-plus-circle');
+                    $('#firstNameSave').val('');
+                    $('#lastNameSave').val('');
+                    $('#mobileNumberSave').val('');
+                    $('#getCustomer').css('border', '1px solid #ccc');
+                    $('#firstNameSave').css('border', '1px solid #ccc');
+                    $('#mobileNumberSave').css('border', '1px solid #ccc');
+
+                }
+                else {
+                    $('#divNewCustomer').hide();
+                    $('#addIcon').addClass('fa-plus-circle');
+                    $('#addIcon').removeClass('fa-minus-circle');
+                    $('#getCustomer').css('border', '1px solid #ccc');
+                }
+            });
+            $('#ballrental').change(function () {
+                if ($(this).is(':checked')) {
+                    $('#textEPrice').val(5000);
+                    $('#ballrentUpdate').show();
+                }
+                else {
+                    $('#textEPrice').val(0);
+                    $('#ballrentUpdate').hide();
+                }
+            });
+
+            $('#ballrentalSave').change(function () {
+                if ($(this).is(':checked')) {
+                    $('#divBall').show();
+                    $('#priceESave').val(5000);
+                }
+                else {
+                    $('#divBall').hide();
+                    $('#priceESave').val(0);
+
+                }
+            });
+
+            $('#btnReservation').click(function () {
+                if ($('#addNewCustomer').is(':checked') == true) {
+                     if ($('#firstNameSave').val().trim() == "") {
+                         $('#firstNameSave').css('border', '1px solid red');
+                         if ($('#mobileNumberSave').val().trim() == "") {
+                             $('#mobileNumberSave').css('border', '1px solid red');
+                         }
+                        return;
+                    }
+                    if ($('#mobileNumberSave').val().trim() == "") {
+                        $('#mobileNumberSave').css('border', '1px solid red');
+                        return;
+                    }
+                } else {
+                    if ($('#clientSave').val().trim() == "") {
+                        $('#getCustomer').css('border', '1px solid red');
+                        return;
+                    }
+                }
+
+                if ($(' #txtStartsave').val().trim() == "") {
+                    alert('Start time required');
+                    return;
+                }
+                if ($(' #priceSave').val().trim() == "") {
+                    alert('Price required');
+                    return;
+                }
+                if ($(' #paymentTypeSave').val().trim() == "") {
+                    alert('Payment Type required');
+                    return;
+                }
+                var data = {
+                    Id: $('#saveEventID').val(),
+                    Client: $('#clientSave').val(),
+                    Note: $('#txtDescriptionSave').val(),
+                    BillingStatus: $('#paymentTypeSave').val(),
+                    Price: $(' #priceSave').val(),
+                    PaidPrice: $('#payAmountSave').val(),
+                    ExtraitemPrice: $('#priceESave').val(),
+                    ItemId: $('#resurcesave').val(),
+                    Fromdate: $(' #txtStartsave').val(),
+                    ToDate: $(' #txtEndsave').val(),
+                    FirstName: $('#addNewCustomer').is(':checked') ? $('#firstNameSave').val(): '',
+                    LastName: $('#addNewCustomer').is(':checked') ? $('#lastNameSave').val(): '',
+                    Phone: $('#addNewCustomer').is(':checked') ? $('#phoneNumberSave').val(): '',
+                    Mobile: $(' #mobileNumberSave').val(),
+                    IsBallRent:$('#ballrentalSave').is(':checked') ? true : false,
+                    AddNew: $('#addNewCustomer').is(':checked') ? true : false,
+                    Advancereservation: $(' #advancereservation').is(':checked') ? true : false,
+                }
+                SaveReservationCousomer(data);
+            });
+            function SaveReservationCousomer(data) {
+                $.ajax({
+                    type: "POST",
+                    url: '/home/SaveReservation',
+                    data: data,
+                    beforeSend: function() {
+                           $("#loderImg").show();
+                    },
+                    success: function (data) {
+                        if (data.IsNumberExixt == true) {
+                            alert(data.massage);
+                            $("#loderImg").hide();
+                        } else {
+                             //Refresh the calender
+                            calendar.refetchEvents();
+                            ClearReservationData();
+                            $("#loderImg").hide();
+                            $('#ModalReservation').modal('hide');
+                            if (data.massage != "") {
+                                alert(data.massage);
+                            }
+                        }
+
+                    },
+                    error: function () {
+                        alert('Failed');
+                    }
+                })
+            };
+
+            function ClearReservationData() {
+                $("#getCustomer").val('');
+                $('#saveEventID').val('');
+                $('#clientSave').val('');
+                $('#txtDescriptionSave').val('');
+                $('#priceSave').val('');
+                $('#payAmountSave').val('');
+                $('#priceESave').val('');
+                $('#resurcesave').val('');
+                $('#txtStartsave').val('');
+                $('#txtEndsave').val('');
+                $('#firstNameSave').val('');
+                $('#lastNameSave').val('');
+                $('#phoneNumberSave').val('');
+                $('#mobileNumberSave').val('');
+                $('#addNewCustomer').val('');
+                $('#advancereservation').val('');
+                $('#ballrentalSave').val('');
+            }
+            calendar.render();
+            $('.fc-toolbar .fc-center h2').text('');
+        });
+
+
+    </script>
+
+}

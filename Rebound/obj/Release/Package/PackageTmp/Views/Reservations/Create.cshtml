@@ -1,0 +1,168 @@
+﻿@model Rebound.Models.Reservation
+
+@{
+    ViewBag.Title = "Create";
+}
+
+
+
+@using (Html.BeginForm())
+{
+
+    @Html.AntiForgeryToken()
+    <div class="form-horizontal">
+        <div class="card border-info">
+            <div class="card-header bg-white">
+                Add Reservation
+            </div>
+            <div class="card-body">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="w-100 d-sm-flex p-sm-0">
+                    <div class="form-group col-sm-4 p-sm-0 d-sm-flex">
+                        @Html.LabelFor(m => m.StartedAt, new { @class = "col-md-5 control-label" })
+                        <div class="col-md-7">
+                            <div class="input-group date datetimepicker">
+                                <input type="text" id="txtStart" class="form-control" name="Fromdate" />
+                                <span class="input-group-addon">
+                                    <span class="fa fa-calendar"></span>
+                                </span>
+                            </div>
+                            @Html.ValidationMessageFor(model => model.Fromdate, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4 p-sm-0 d-sm-flex">
+                        @Html.LabelFor(m => m.EndAt, new { @class = "col-md-5 control-label" })
+                        <div class="col-md-7">
+                            <div class="input-group date datetimepicker">
+                                <input type="text" id="txtStart" class="form-control" name="ToDate" />
+                                <span class="input-group-addon">
+                                    <span class="fa fa-calendar"></span>
+                                </span>
+                            </div>
+                            @Html.ValidationMessageFor(model => model.ToDate, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4 p-sm-0 d-sm-flex">
+                        @Html.LabelFor(m => m.BillingStatus, new { @class = "col-md-5 control-label" })
+                        <div class="col-md-7">
+                            @Html.EnumDropDownListFor(model => model.BillingStatus, htmlAttributes: new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.BillingStatus, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                </div>
+                <div class="w-100 d-sm-flex p-sm-0">
+
+                    <div class="form-group col-sm-4 p-sm-0 d-sm-flex">
+                        @Html.LabelFor(m => m.Price, new { @class = "col-md-5 control-label" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(m => m.Price, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Price, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4 p-sm-0 d-sm-flex">
+                        @Html.LabelFor(m => m.ExtraitemPrice, new { @class = "col-md-5 control-label" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(m => m.ExtraitemPrice, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.ExtraitemPrice, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4 p-sm-0 d-sm-flex">
+                        @Html.LabelFor(m => m.PaidPrice, new { @class = "col-md-5 control-label" })
+                        <div class="col-md-7">
+                            @Html.EditorFor(m => m.PaidPrice, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.PaidPrice, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+
+                <div class="w-100 d-sm-flex p-sm-0">
+                    <div class="form-group col-sm-4 p-sm-0 d-sm-flex">
+                        <label class="col-md-5">Color: </label>
+                        <div class="col-md-7">
+                            <select class="form-control" name="color">
+                                <option value="">Default</option>
+                                <option value="red">Red</option>
+                                <option value="blue">Blue</option>
+                                <option value="black">Black</option>
+                                <option value="green">Green</option>
+                                <option value="yellow">Yellow</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-8 p-sm-0 d-sm-flex">
+                        <label class="col-md-2">Note: </label>
+                        <div class="col-md-10">
+                            @Html.EditorFor(m => m.Note, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.Note, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+                <div class="w-100 d-sm-flex p-sm-0">
+                    <div class="form-group col-sm-4 p-sm-0 d-sm-flex">
+                        @Html.LabelFor(m => m.Client, new { @class = "col-md-4 control-label" })
+                        <div class="col-md-8">
+                            @Html.DropDownList("Client", null, htmlAttributes: new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.Client, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group col-sm-4 p-sm-0 d-sm-flex">
+                        @Html.LabelFor(m => m.ItemId, new { @class = "col-md-4 control-label" })
+                        <div class="col-md-8">
+                            @Html.DropDownList("ItemId", null, htmlAttributes: new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.ItemId, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+
+                    <div class="form-group col-sm-4 p-sm-0 d-sm-flex">
+                        @Html.LabelFor(m => m.OperatorsId, new { @class = "col-md-4 control-label" })
+                        <div class="col-md-8">
+                            @Html.DropDownList("OperatorsId", null, htmlAttributes: new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.OperatorsId, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+                </div>
+                <div class="card-footer border-info bg-info">
+                    <div class="form-group">
+                        <div class="col-md-12">
+                            <input type="submit" class="btn btn-outline-light float-md-right" value="Add Reservation" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts{
+    <script>
+        jQuery(document).ready(function ($) {
+            if (window.jQuery().datetimepicker) {
+                $('.datetimepicker').datetimepicker({
+                    format: 'DD-MM-YYYY hh:mm A',
+                    //todayHighlight: true,
+                    //startDate: today,
+                    //endDate: end,
+                   // autoclose: true,
+                    // Your Icons
+                    // as Bootstrap 4 is not using Glyphicons anymore
+                    icons: {
+                        time: 'fa fa-clock-o',
+                        date: 'fa fa-calendar',
+                        up: 'fa fa-chevron-up',
+                        down: 'fa fa-chevron-down',
+                        previous: 'fa fa-chevron-left',
+                        next: 'fa fa-chevron-right',
+                        today: 'fa fa-check',
+                        clear: 'fa fa-trash',
+                        close: 'fa fa-times'
+                    }
+                });
+            }
+        });
+    </script>
+}

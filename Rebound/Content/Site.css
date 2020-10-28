@@ -1,0 +1,90 @@
+﻿body {
+
+}
+.login-body {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-image: url(./loginbg.svg);
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+    .login-body #loginForm {
+        background-color: #95E2FF;
+        padding:50px 15px 25px;
+        border-radius: 8px;
+    }
+        .login-body #loginForm input[type="text"], .login-body #loginForm input[type="password"] {
+            font-style: italic;
+            border-radius: 8px;
+            width: 100%;
+        }
+        .login-body #loginForm input[type="submit"] {
+            background-color: #D6EDF6;
+            border-radius:8px;
+            width:100%;
+        }
+
+
+.ui-menu .ui-menu-item {
+    margin: 0 !important;
+    cursor: pointer !important;
+    font-size: 14px !important;
+    border-bottom: solid 1px #f2f2f2 !important;
+    list-style-image: url(data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7) !important;
+}
+
+.ui-widget.ui-widget-content {
+    border: 1px solid #c5c5c5d9;
+    border-radius: 6px;
+    -moz-box-shadow: 3px 3px 5px 6px #ccc;
+    -webkit-box-shadow: 3px 3px 5px 6px #ccc;
+    box-shadow: 2px 4px 8px 6px #f2f2f2;
+}
+
+.modal-header {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-align: start;
+    align-items: flex-start;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    padding: 1rem 1rem;
+    border-bottom: 1px solid #dee2e6;
+    background-color: blue;
+    color: white;
+    border-top-left-radius: .3rem;
+    border-top-right-radius: .3rem;
+}
+
+
+.modal-content {
+    position: relative;
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: column;
+    flex-direction: column;
+    width: 100%;
+    pointer-events: auto;
+    background-color: #fff;
+    background-clip: padding-box;
+    border-radius: 11px;
+    outline: 0;
+    -moz-box-shadow: 3px 3px 5px 6px #ccc;
+    -webkit-box-shadow: 3px 3px 5px 6px #ccc;
+    box-shadow: 12px 21px 5px -31px #cccccc14;
+}
+.error-page{
+    text-align:center;
+}
+
+.gCalendarI {
+    background: url(../Uploads/assets/calendar-icon.png) no-repeat 50px 85px #a6cf83;
+    background-position: center right;
+    float: left;
+    padding: 8px 34px 8px 8px;
+    background-size: 45px;
+}

@@ -1,0 +1,63 @@
+﻿
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<style type="text/css">
+    .boxes {
+        color: #000;
+        display: none;
+    }
+
+    .cuscolor {
+        color: red;
+    }
+
+    .control-label {
+        margin-right: 15px;
+    }
+</style>
+<div class="container cus">
+    <div class="col-md-3">
+
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="text-center"> User role manager</h4>
+            </div>
+            <div class="card-body">
+                <div class="form-horizontal">
+                    
+                    <table width="100%" class="table table-bordered">
+                        <thead><tr><th>Email</th><th>Set Role</th></tr></thead>
+                        <tbody>
+
+                            @foreach (var item in ViewBag.Userlist)
+                            {
+                                <tr>
+                                    <td>
+                                        @item.Email
+                                    </td>
+                                    <td>@Html.ActionLink("Set Role", "SetRoletouser", new { id = item.Id })  |  @Html.ActionLink("Remove Role", "Removerole", new { id = item.Id })</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+

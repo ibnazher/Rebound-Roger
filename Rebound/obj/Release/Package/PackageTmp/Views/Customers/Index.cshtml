@@ -1,0 +1,92 @@
+﻿@model IEnumerable<Rebound.Models.Customer>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-flex justify-content-between">
+        <h6 class="m-0 font-weight-bold text-primary">Customer List</h6>
+        <a href="@Url.Action("Create","Customers")" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Customer</a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Name</th>
+                        <th>Mobile</th>
+                        <th>Address</th>
+                        <th>Payment Type</th>
+                        <th>Balance</th>
+                        <th>Black listied</th>
+                        <th width="50px">Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                   "ajax": {
+                    "url": "/Customers/GetCustomer",
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    { "data": "Code" },
+                    { "data": "FullName" },
+                    { "data": "Mobile" },
+                    { "data": "Address" },
+                    {
+                        "data": "PaymentType",
+                        "render": function (value) {
+                            if (value == 0) return "Monthly"
+                            else if (value == 1) return "Prepaid"
+                            else if (value == 2) return "Cash"
+                            return value;
+                        }
+                    },
+                    { "data": "Balance" },
+                    {
+                        "data": "Blacklist",
+                        "render": function (value) {
+                            if (value == true) return "Blacklisted"
+                            else if (value == false) return "Active"
+                            return value;
+                        }
+                    },
+                    {
+                        "render": function(data, type, full, meta) {
+                            return'<a href="/Customers/Edit/' + full.Id + '"><i class="fas fa-edit"></i></a>' ;
+                        }
+                    }
+                ],
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                dom:  "lBftip",
+                buttons: [
+                    {
+                        extend: 'excel',
+                        className: 'Button',
+                        text: '<i class="fas fa-file-excel" aria-hidden="true"></i> Export to Excel '
+                    },
+               ],
+            });
+            function ViewCostomer(data) {
+                alert(data);
+            };
+
+        });
+    </script>
+}
+
+

@@ -1,0 +1,170 @@
+﻿@model Rebound.Models.Reservation
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Reservation</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Customer.FirstName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Customer.FirstName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Item.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Item.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Operators.FirstName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Operators.FirstName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.StartedAt)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.StartedAt)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.EndAt)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.EndAt)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Note)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Note)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CreateDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CreateDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ApproveDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ApproveDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CancelDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CancelDate)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CreateUser)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CreateUser)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.UpdateUser)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.UpdateUser)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ApproveUser)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ApproveUser)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CancelUser)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CancelUser)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.CancelNote)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.CancelNote)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.BillingStatus)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.BillingStatus)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Status)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Price)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Price)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.PaidPrice)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.PaidPrice)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ExtraitemPrice)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ExtraitemPrice)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>

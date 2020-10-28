@@ -1,0 +1,428 @@
+﻿
+@{
+    ViewBag.Title = "Audit report";
+}
+@{
+    var TimeZoneOffset = System.Web.Configuration.WebConfigurationManager.AppSettings["TimeZoneOffset"];
+    TimeZoneOffset = TimeZoneOffset.ToString();
+}
+<div class="row">
+    <div class=" col-sm-12">
+        <div class="card shadow mb-4">
+            <div class="card-header d-sm-flex flex-wrap">
+                <div class="d-flex mb-2">
+                    <h6 class="m-0 font-weight-bold text-primary mr-5">Audit report </h6>
+                    <div class="mr-sm-3 d-sm-flex mb-2 mb-sm-0">
+                        <input style="min-width:240px;" class="form-control bg-white border-0  small  mr-sm-2 gCalendarI" type="text" name="daterangecash" value="" />
+                        <input hidden class="form-control bg-white border-0 small datepicker mr-sm-2" type="text" id="startdate" />  <input hidden type="text" class="form-control bg-white border-0 small datepicker ml-sm-2" id="enddate" />
+                    </div>
+                </div>
+
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#byres">Created reservation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#byupdate">Updated reservation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#bycancel">Canceled reservation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#bydate">Transactions by date</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#bycash">Transactions by cash</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body  tab-content">
+                <div class="tab-pane active" id="byres">
+                    <table class="table table-responsive-md table-bordered p-0 m-0" id="reserveCreate" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Reservations Date</th>
+                                <th>User</th>
+                                <th>Amout</th>
+                                <th>Ball rent</th>
+                                <th>Paid</th>
+                                <th>Customer</th>
+                                <th>Created on</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="tab-pane" id="byupdate">
+                    <table class="table table-responsive-md table-bordered p-0 m-0" id="reserveUpdate" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Reservations Date</th>
+                                <th>User</th>
+                                <th>Amout</th>
+                                <th>Ball rent</th>
+                                <th>Paid</th>
+                                <th>Customer</th>
+                                <th>Created on</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class=" tab-pane" id="bycancel">
+                    <table class="table table-responsive-md table-bordered p-0 m-0" id="reserveCancel" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Reservations Date</th>
+                                <th>User</th>
+                                <th>Amout</th>
+                                <th>Ball rent</th>
+                                <th>Paid</th>
+                                <th>Customer</th>
+                                <th>Created on</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class=" tab-pane" id="bydate">
+                    <table class="table table-responsive-md table-bordered p-0 m-0" id="transactionbyDate" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Transactions Date</th>
+                                <th>Voucher</th>
+                                <th>User</th>
+                                <th>Debit</th>
+                                <th>Credit</th>
+                                <th>Customer</th>
+                                <th>Created on</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+                <div class=" tab-pane" id="bycash">
+                    <table class="table table-responsive-md table-bordered p-0 m-0" id="transactionbyCash" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Transactions Date</th>
+                                <th>Voucher</th>
+                                <th>User</th>
+                                <th>Debit</th>
+                                <th>Credit</th>
+                                <th>Customer</th>
+                                <th>Created on</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <script>
+
+        $(function () {
+            var start = moment();
+            var end = moment();
+
+            $('input[name="daterangecash"]').daterangepicker({
+                opens: 'left',
+                startDate: start,
+                endDate: end,
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'This Year': [moment().startOf('year'), moment().endOf('year')],
+                }
+            }, function (start, end, label) {
+                $('#startdate').val(start.format('YYYY-MM-DD'));
+                $('#enddate').val(end.format('YYYY-MM-DD'));
+
+                $('#reserveCreate').DataTable().ajax.reload();
+                $('#reserveUpdate').DataTable().ajax.reload();
+                $('#reserveCancel').DataTable().ajax.reload();
+                $('#transactionbyDate').DataTable().ajax.reload();
+                $('#transactionbyCash').DataTable().ajax.reload();
+            });
+        });
+        $(document).ready(function () {
+
+            $('.datepicker').datepicker({ format: 'YYYY-MM-DD' });
+            var startYear = moment().format('MM/DD/YYYY');
+            var endYear = moment().format('MM/DD/YYYY');
+            $('#startdate').val(startYear);
+            $('#enddate').val(endYear);
+
+            $('#reserveCreate').DataTable({
+                "order": [[1, "desc"]],
+                "ajax": {
+                    "url": "/Report/AuditReserveCreate",
+                    "data": function (d) {
+                        d.start = $('#startdate').val(),
+                            d.end = $('#enddate').val()
+                    },
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    {
+                        "data": "date",
+                        "type": "date ",
+                        "render": function (value) {
+                            if (value === null) return "";
+
+
+                            return moment(value).utcOffset("@TimeZoneOffset").format("dddd, Do MMM  YY");
+                        }
+                    },
+                    { "data": "user" },
+                    { "data": "amount" },
+                    { "data": "ballrent" },
+                    { "data": "paid" },
+                    { "data": "customer" },
+                    {
+                        "data": "create",
+                        "type": "date ",
+                        "render": function (value) {
+                            if (value === null) return "";
+
+
+                            return moment(value).utcOffset("@TimeZoneOffset").format("Do MMM  YY hh:mm a");
+                        }
+                    },
+                    { "data": "narrration" },
+                ],
+                "lengthMenu": [[-1, 10, 25, 50], ["All",10, 25, 50]],
+                dom: "lBftip",
+                buttons: [
+                    {
+                        extend: 'excel',
+                        className: 'Button',
+                        text: '<i class="fas fa-file-excel" aria-hidden="true"></i> Export to Excel '
+                    },
+                ],
+            });
+
+            $('#reserveUpdate').DataTable({
+                "order": [[1, "desc"]],
+                "ajax": {
+                    "url": "/Report/AuditReserveUpdate",
+                    "data": function (d) {
+                        d.start = $('#startdate').val(),
+                            d.end = $('#enddate').val()
+                    },
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    {
+                        "data": "date",
+                        "type": "date ",
+                        "render": function (value) {
+                            if (value === null) return "";
+
+
+                            return moment(value).utcOffset("@TimeZoneOffset").format("dddd, Do MMM  YY");
+                        }
+                    },
+                    { "data": "user" },
+                    { "data": "amount" },
+                    { "data": "ballrent" },
+                    { "data": "paid" },
+                    { "data": "customer" },
+                    {
+                        "data": "create",
+                        "type": "date ",
+                        "render": function (value) {
+                            if (value === null) return "";
+
+
+                            return moment(value).utcOffset("@TimeZoneOffset").format("Do MMM  YY hh:mm a");
+                        }
+                    },
+                    { "data": "narrration" },
+                ],
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                dom: "lBftip",
+                buttons: [
+                    {
+                        extend: 'excel',
+                        className: 'Button',
+                        text: '<i class="fas fa-file-excel" aria-hidden="true"></i> Export to Excel '
+                    },
+                ],
+            });
+
+            $('#reserveCancel').DataTable({
+                "order": [[1, "desc"]],
+                "ajax": {
+                    "url": "/Report/AuditReserveCancel",
+                    "data": function (d) {
+                        d.start = $('#startdate').val(),
+                            d.end = $('#enddate').val()
+                    },
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    {
+                        "data": "date",
+                        "type": "date ",
+                        "render": function (value) {
+                            if (value === null) return "";
+
+
+                            return moment(value).utcOffset("@TimeZoneOffset").format("dddd, Do MMM  YY");
+                        }
+                    },
+                    { "data": "user" },
+                    { "data": "amount" },
+                    { "data": "ballrent" },
+                    { "data": "paid" },
+                    { "data": "customer" },
+                    {
+                        "data": "create",
+                        "type": "date ",
+                        "render": function (value) {
+                            if (value === null) return "";
+
+
+                            return moment(value).utcOffset("@TimeZoneOffset").format("Do MMM  YY hh:mm a");
+                        }
+                    },
+                    { "data": "narrration" },
+                ],
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                dom: "lBftip",
+                buttons: [
+                    {
+                        extend: 'excel',
+                        className: 'Button',
+                        text: '<i class="fas fa-file-excel" aria-hidden="true"></i> Export to Excel '
+                    },
+                ],
+            });
+
+
+            $('#transactionbyDate').DataTable({
+                "order": [[1, "desc"]],
+                "ajax": {
+                    "url": "/Report/AuditBillsbydate",
+                    "data": function (d) {
+                        d.start = $('#startdate').val(),
+                            d.end = $('#enddate').val()
+                    },
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    {
+                        "data": "TransactionDate",
+                        "type": "date ",
+                        "render": function (value) {
+                            if (value === null) return "";
+
+
+                            return moment(value).utcOffset("@TimeZoneOffset").format("dddd, Do MMM  YY");
+                        }
+                    },
+                    { "data": "voucher" },
+                    { "data": "UserId" },
+                    { "data": "DebitAmount" },
+                    { "data": "CreditAmount" },
+                    { "data": "Customer" },
+                    {
+                        "data": "CreatedOn",
+                        "type": "date ",
+                        "render": function (value) {
+                            if (value === null) return "";
+
+
+                            return moment(value).utcOffset("@TimeZoneOffset").format("Do MMM  YY hh:mm a");
+                        }
+                    },
+                    { "data": "Narration" },
+                ],
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                dom: "lBftip",
+                buttons: [
+                    {
+                        extend: 'excel',
+                        className: 'Button',
+                        text: '<i class="fas fa-file-excel" aria-hidden="true"></i> Export to Excel '
+                    },
+                ],
+            });
+
+            $('#transactionbyCash').DataTable({
+                "order": [[1, "desc"]],
+                "ajax": {
+                    "url": "/Report/AuditBillsbycash",
+                    "data": function (d) {
+                        d.start = $('#startdate').val(),
+                            d.end = $('#enddate').val()
+                    },
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    {
+                        "data": "TransactionDate",
+                        "type": "date ",
+                        "render": function (value) {
+                            if (value === null) return "";
+
+
+                            return moment(value).utcOffset("@TimeZoneOffset").format("dddd, Do MMM  YY");
+                        }
+                    },
+                    { "data": "voucher" },
+                    { "data": "UserId" },
+                    { "data": "DebitAmount" },
+                    { "data": "CreditAmount" },
+                    { "data": "Customer" },
+                    {
+                        "data": "CreatedOn",
+                        "type": "date ",
+                        "render": function (value) {
+                            if (value === null) return "";
+
+
+                            return moment(value).utcOffset("@TimeZoneOffset").format("Do MMM  YY hh:mm a");
+                        }
+                    },
+                    { "data": "Narration" },
+                ],
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                dom: "lBftip",
+                buttons: [
+                    {
+                        extend: 'excel',
+                        className: 'Button',
+                        text: '<i class="fas fa-file-excel" aria-hidden="true"></i> Export to Excel '
+                    },
+                ],
+            });
+
+
+
+        });
+    </script>
+}

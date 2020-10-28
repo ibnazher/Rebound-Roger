@@ -1,0 +1,147 @@
+﻿@model Rebound.Models.Transaction
+@{
+    var TimeZoneOffset = System.Web.Configuration.WebConfigurationManager.AppSettings["TimeZoneOffset"];
+    TimeZoneOffset = TimeZoneOffset.ToString();
+}
+<div class="form-horizontal">
+    <div class="card border-info">
+        <div class="card-header bg-white d-flex justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Select a customer in order to get his pending reservations, <br />then you will be able to settel them as monthly payment</h6>
+            <div>
+                <a href="@Url.Action("GetBills","Customers")" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Cash Payment</a>
+                <a href="@Url.Action("MonthlyReport","Report")" class="btn btn-primary"><i class="fas fa-list-ul"></i> Transaction details</a>
+            </div>
+        </div>
+        <div class="card-body">
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.Client, "Customer :", htmlAttributes: new { @class = "control-label col-md-12" })
+                        <div class="col-md-12">
+                            <input id="getCustomer" placeholder="Search for customer" class="form-control" />
+                            @Html.HiddenFor(model => model.Client, new { htmlAttributes = new { @class = "form-control", @id = "clientSave" } })
+                            @Html.ValidationMessageFor(model => model.Client, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table class="table table-bordered" id="detailsTable">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Reservations</th>
+                        <th>Price</th>
+                        <th>Ball Rent</th>
+                        <th>Status</th>
+                        <th>Paid</th>
+                        <th>Note</th>
+                        <th>Amount</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+          $(function () {
+                $("#getCustomer").autocomplete({
+                    source: function (request, response) {
+                         $.ajax({
+                             url: '@Url.Action("GetCustomerData","Home")',
+                             dataType: "json",
+                             data: { search: $("#getCustomer").val(),request:1},
+                             success: function (data) {
+                                 if(!data.length){
+                                    var result = [
+                                        {
+                                            label: 'No results found',
+                                            value: response.term
+                                        }
+                                    ];
+                                    response(result);
+                                }
+                                else{
+                                  response($.map(data, function (item) {
+                                     return { label: item.Code + " - " + item.FirstName +" " + item.LastName + " - " + item.Mobile, Id: item.Id };
+                                 }))
+                                }
+                             }
+                         })
+                    },
+                    minLength: 3,
+                    select: function (event, ui) {
+                        $(this).val(ui.item.label); // display the selected text
+                        var id = ui.item.Id; // selected value
+                        $("#Client").val(id);
+                        getData(id);
+
+                    }
+                });
+          });
+        function getData(id) {
+            var data = id;
+            $.ajax({
+                url: '@Url.Action("GetPendingreservationData","Report")',
+                dataType: "json",
+                data: { id: data},
+                success: function (result) {
+                    if(!result.length){
+                        msg = "No pending reservation";
+                        alert(msg)
+                         $("#detailsTable tbody").html("");
+                    }
+                    else {
+                        $("#detailsTable tbody").html("");
+                        for (var i = 0; i < result.length; i++) {
+                            $("#detailsTable tbody").append('<tr><td>' + moment(result[i].satrt).utcOffset("@TimeZoneOffset").format('Do MMM') + '</td><td>' + moment(result[i].satrt).utcOffset("@TimeZoneOffset").format('h:mm a') + '-'+ moment(result[i].end).utcOffset("@TimeZoneOffset").format('h:mm a')+'</td><td>' + result[i].title + '</td><td>' + result[i].price + '</td><td>' + result[i].eprice + '</td><td>' + setStatus(result[i].billingStatus, result[i].id) + '</td><td>' + result[i].paid + '</td><td><input type="text" id="' + result[i].id + 'note" class="form-control"></td><td><input type="number" id="' + result[i].id + 'pay" class="form-control" id=""></td><td><button class="btn btn-sm btn-success" onclick="postData(' + result[i].id + ',' + result[i].client + ')" >Pay now</button></td></tr>');
+                        }
+
+                    }
+                }
+            })
+        }
+        function setStatus(v,id) {
+            if (v == 1) {
+                var data = '<select id="'+id+'" class="form-control">><option value="1">Confirmed</option><option value="0">Pending</option></select>'
+                return data;
+            } else {
+                var data = '<select id="'+id+'"  class="form-control"><option value="0">Pending</option><option value="1">Confirmed</option></select>'
+                 return data;
+            }
+        }
+
+
+        function postData(id,client) {
+            if (id != null && confirm('Are you sure to get payment?')) {
+                var data = id;
+                var status = $('#' + id).val();
+                var pay = $('#' + id + 'pay').val();
+                var notes = $('#' + id + 'note').val();
+                if (pay == 0 || pay == "" || isNaN(pay) || notes == "" ) {
+                    alert("Amount/Note is requered");
+                    return;
+                }
+                $.ajax({
+                    url: '@Url.Action("UpdateEventPay","Report")',
+                    dataType: "json",
+                    type: "POST",
+                    data: { id: data, amount: pay, bstatus: status, note: notes },
+                    success: function (result) {
+
+                        alert(result.status)
+                        $("#detailsTable tbody").html("");
+                        getData(client);
+
+                    }
+                })
+            }
+        }
+    </script>
+}

@@ -1,0 +1,234 @@
+﻿    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="accordionSidebar">
+
+        <!-- Sidebar - Brand -->
+        <li>
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Action("Index", "Home")">
+                <div class="sidebar-brand-icon rotate-n-15">
+                    <img src="~/Uploads/assets/reboundicon.png" height="40" />
+                </div>
+                <div class="sidebar-brand-text mx-3">
+                    <img src="~/Uploads/assets/reboundlogo.png" width="140" />
+                </div>
+            </a>
+        </li>
+        <!-- Divider -->
+        @*<hr class="sidebar-divider my-0">*@
+
+        <!-- Nav Item - Dashboard -->
+        @if (User.Identity.IsAuthenticated)
+        {
+            if (User.IsInRole("Dashboard"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Dashboard", "Home")">
+                        <i class="fas fa-fw fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+            }
+        }
+        @if (User.Identity.IsAuthenticated)
+        {
+            if (User.IsInRole("Add Reservation"))
+            {
+                <!-- Nav Item - Dashboard -->
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Home")">
+                        <i class="fas fa-fw fa-tachometer-alt"></i>
+                        <span>Manage Reservations</span>
+                    </a>
+                </li>
+            }
+        }
+
+
+        @*<hr class="sidebar-divider">
+
+
+        <div class="sidebar-heading">
+            Interface
+        </div>*@
+
+        <!-- Nav Item - Pages Collapse Menu -->
+        @if (User.Identity.IsAuthenticated)
+        {
+            if (User.IsInRole("Categories View") || User.IsInRole("Item View"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                        <i class="fas fa-fw fa-cog"></i>
+                        <span>Configuration</span>
+                    </a>
+                    <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Admin Section</h6>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                if (User.IsInRole("Categories View"))
+                                {
+                                    @Html.ActionLink("Categories", "Index", "Categories", null, new { @class = "collapse-item" })
+                                }
+                            }
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                if (User.IsInRole("Item View"))
+                                {
+                                    @Html.ActionLink("Items", "Index", "Items", null, new { @class = "collapse-item" })
+                                }
+                            }
+                        </div>
+                    </div>
+                </li>
+            }
+        }
+        @if (User.Identity.IsAuthenticated)
+        {
+            if (User.IsInRole("Add Reservation"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Reservations")">
+                        <i class="far fa-calendar-alt"></i>
+                        <span>Reservation</span>
+                    </a>
+                </li>
+            }
+        }
+        @if (User.Identity.IsAuthenticated)
+        {
+            if (User.IsInRole("Customer View"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Customers")">
+                        <i class="fas fa-users"></i>
+                        <span>Customer</span>
+                    </a>
+                </li>
+            }
+        }
+        <!-- Divider -->
+        @*<hr class="sidebar-divider">*@
+        @if (User.Identity.IsAuthenticated)
+        {
+            if (User.IsInRole("Register user") || User.IsInRole("Set Roles") || User.IsInRole("systemAdmin"))
+            {
+                <!-- Heading -->
+                <li class="sidebar-heading">
+                    Admin
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsadmin" aria-expanded="true" aria-controls="collapsePages">
+                        <i class="fas fa-user"></i>
+                        <span>Admin User</span>
+                    </a>
+                    <div id="collapsadmin" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Admin Section:</h6>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                if (User.IsInRole("Register user") || User.IsInRole("systemAdmin"))
+                                {
+                                    <a class="collapse-item" href="@Url.Action("Register", "Account")">Admin user</a>
+                                }
+                            }
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                if (User.IsInRole("Set Roles") || User.IsInRole("systemAdmin"))
+                                {
+                                    <a class="collapse-item" href="@Url.Action("Setrole", "Admin")">User role</a>
+                                }
+                            }
+                        </div>
+                    </div>
+                </li>
+            }
+        }
+        @if (User.Identity.IsAuthenticated)
+        {
+            if (User.IsInRole("Operator View"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Operators")">
+                        <i class="fas fa-user"></i>
+                        <span>Operators</span>
+                    </a>
+                </li>
+            }
+        }
+        @if (User.Identity.IsAuthenticated)
+        {
+            if (User.IsInRole("Bills Report") || User.IsInRole("Cash Report") || User.IsInRole("Dues Report")  || User.IsInRole("Cancel Report")|| User.IsInRole("Audit Report") || User.IsInRole("Paid Reservations"))
+            {
+                <!-- Divider -->
+                <li class="sidebar-divider"></li />
+
+                <!-- Heading -->
+                <li class="sidebar-heading">
+                    Report
+                </li>
+
+                <!-- Nav Item - Pages Collapse Menu -->
+                <li class="nav-item ">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapsePages" aria-expanded="true" aria-controls="collapsePages">
+                        <i class="fas fa-fw fa-folder"></i>
+                        <span>Report</span>
+                    </a>
+                    <div id="collapsePages" class="collapse" aria-labelledby="headingPages" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Admin Section:</h6>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                if (User.IsInRole("Paid Reservations"))
+                                {
+                                    <a class="collapse-item" href="@Url.Action("Paidreservation", "Report")">Paid Reservations</a>
+                                }
+                            }
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                if (User.IsInRole("Bills Report"))
+                                {
+                                    <a class="collapse-item" href="@Url.Action("Billing", "Report")">Transaction Report</a>
+                                }
+                            }
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                if (User.IsInRole("Cash Report"))
+                                {
+                                    <a class="collapse-item" href="@Url.Action("CashReport", "Report")">Payment Report</a>
+                                }
+                            }
+
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                if (User.IsInRole("Dues Report"))
+                                {
+                                    <a class="collapse-item" href="@Url.Action("DueBills", "Report")">Due List</a>
+                                }
+                            }
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                if (User.IsInRole("Cancel Report"))
+                                {
+                                    <a class="collapse-item" href="@Url.Action("CancelBills", "Report")">Cancel Report</a>
+                                }
+                            }
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                if (User.IsInRole("Audit Report"))
+                                {
+                                    <a class="collapse-item" href="@Url.Action("Auditreport", "Report")">Audit Report</a>
+                                }
+                            }
+                        </div>
+                    </div>
+                </li>
+            }
+        }
+
+                <!-- Sidebar Toggler (Sidebar) -->
+                <li class="text-center d-none d-md-inline">
+                    <button class="rounded-circle border-0" id="sidebarToggle"></button>
+                </li>
+
+            </ul>
+    <!-- End of Sidebar -->

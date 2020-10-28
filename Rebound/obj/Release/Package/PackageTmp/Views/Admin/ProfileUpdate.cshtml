@@ -1,0 +1,139 @@
+﻿@model Rebound.Models.ApplicationUser
+@{
+    ViewBag.Title = "Profile Update";
+}
+
+@using (Html.BeginForm(null, null, FormMethod.Post,
+                                     new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+    <div class="container">
+
+        <div class="card">
+            <div class="card-header">
+                <h4>Update Your Profile</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                        @Html.HiddenFor(model => model.Id)
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.UserName,"User Name", htmlAttributes: new { @class = "control-label" })
+                            @Html.EditorFor(model => model.UserName, new { htmlAttributes = new { @class = "form-control", @readonly ="readonly" } })
+                            @Html.ValidationMessageFor(model => model.UserName, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.FirstName,"First Name", htmlAttributes: new { @class = "control-label" })
+                            @Html.EditorFor(model => model.FirstName, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.FirstName, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.LastName,"Last Name", htmlAttributes: new { @class = "control-label" })
+                            @Html.EditorFor(model => model.LastName, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.LastName, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Gender, htmlAttributes: new { @class = "control-label" })
+                            @Html.EnumDropDownListFor(model => model.Gender, "Select Gender", new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.Gender, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="col-md-12">
+
+                            @if (Model.ImageUrl == null)
+                            {
+                                <img class="img-profile" style="width: 300px; height: auto; margin-bottom: 20px;" src="~/Uploads/assets/user.jpg">
+                            }
+                            else
+                            {
+                                var imagePath = "";
+                                imagePath = Url.Content(Model.ImageUrl);
+
+                                {
+                                    <img src="@imagePath" class="avatar img-thumbnail" alt="avatar" style="width: 300px; height: auto; margin-bottom: 20px;">
+                                }
+                            }
+                            <div id="alert" style="width: 80%;"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="col-md-12">
+                                <input type="file" class="text-center center-block file-upload" name="imageUpload" accept="image/*" id="file" data-file_types="png|jpg|jpeg" />
+                                @Html.ValidationMessageFor(model => model.ImageUrl, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="card-footer d-sm-flex justify-content-sm-between">
+            <a href="@Url.Action("ChangePassword","Admin")" class="btn btn-primary"> Change password</a>
+            <input type="submit" value="Update profile" class="btn btn-success" />
+        </div>
+    </div>
+
+}
+
+
+@section Scripts
+{
+    <script>
+
+        $(document).ready(function () {
+            
+
+
+            });
+        /* File Upload validate*/
+        $('#file').on('change', function () {
+            var numb = $(this)[0].files[0].size / 1024 / 1024; //count file size
+            var resultid = $(this).val().split(".");
+            var gettypeup = resultid[resultid.length - 1]; // take file type uploaded file
+            var filetype = $(this).attr('data-file_types'); // take allowed files from input
+            var allowedfiles = filetype.replace(/\|/g, ', '); // string allowed file
+            var filesize = 2; //2MB
+            var onlist = $(this).attr('data-file_types').indexOf(gettypeup) > -1;
+            var checkinputfile = $(this).attr('type');
+            numb = numb.toFixed(2);
+
+            if (onlist && numb <= filesize) {
+                $('#alert').html('The file is ready to upload').removeAttr('class').addClass('xd2'); //file OK
+            } else {
+                if (numb >= filesize && onlist) {
+                    $(this).val(''); //remove uploaded file
+                    $('#alert').html('Added file is too big \(' + numb + ' MB\) - max file size ' + filesize + ' MB').removeAttr('class').addClass('xd'); //alert that file is too big, but type file is ok
+                } else if (numb < filesize && !onlist) {
+                    $(this).val(''); //remove uploaded file
+                    $('#alert').html('An not allowed file format has been added \(' + gettypeup + ') - allowed formats: ' + allowedfiles).removeAttr('class').addClass('xd'); //wrong type file
+                } else if (!onlist) {
+                    $(this).val(''); //remove uploaded file
+                    $('#alert').html('An not allowed file format has been added \(' + gettypeup + ') - allowed formats: ' + allowedfiles).removeAttr('class').addClass('xd'); //wrong type file
+                }
+            }
+        });
+        /* File upload preview*/
+        $(document).ready(function () {
+
+
+            var readURL = function (input) {
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        $('.avatar').attr('src', e.target.result);
+                    }
+
+                    reader.readAsDataURL(input.files[0]);
+                }
+            }
+
+
+            $(".file-upload").on('change', function () {
+                readURL(this);
+            });
+        });
+    </script>
+}

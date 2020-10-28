@@ -1,0 +1,46 @@
+﻿@using Microsoft.AspNet.Identity
+
+
+@if (Request.IsAuthenticated)
+{
+    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm", @class = "navbar-right" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <ul class="nav navbar-nav navbar-right">
+            <li class="dropdown">
+                <a data-toggle="dropdown" class="text-white nav-link" href="#"><img style="max-height:50px;" class="img-thumbnail rounded-circle" src="~/Uploads/Users/roger.jpg"/></a>
+
+                <div class="card" style="border:inherit;">
+                    <ul class="dropdown-menu" style="left: -199px;margin: 0;padding: 0;">
+                        <li>
+                            <div class="card-body">
+
+                                @Html.ActionLink("Hello " + User.Identity.GetUserName() + "!", "Index", "Manage", routeValues: null, htmlAttributes: new { title = "Manage", @class = "nav-link text-dark" })
+                            </div>
+                        </li>
+                        <li>
+                            <div class="card-footer bg-info d-sm-flex justify-content-between">
+                                <a href="javascript:document.getElementById('logoutForm').submit()" class="  nav-link text-white">Log off</a>
+                                <a href="" class="t nav-link text-white">Profile</a>
+
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+        </ul>
+    }
+}
+else
+{
+    <ul class="nav navbar-nav navbar-right">
+        <li>
+            @Html.ActionLink("Log in", "Login", "Account", routeValues: null, htmlAttributes: new
+       {
+           id = "loginLink",
+           @class = "nav-link text-white"
+       })
+        </li>
+    </ul>
+}

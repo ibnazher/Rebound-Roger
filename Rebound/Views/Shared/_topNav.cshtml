@@ -1,0 +1,131 @@
+﻿
+@using Microsoft.AspNet.Identity
+@using System.Linq;
+@using Rebound.Models;
+@{
+    var context = new ApplicationDbContext();
+    var username = User.Identity.GetUserId();
+    var UserMail = User.Identity.GetUserName();
+    ViewBag.UserMail = UserMail;
+    if (!string.IsNullOrEmpty(username))
+    {
+        var user = context.Users.SingleOrDefault(u => u.Id == username);
+        if (user != null)
+        {
+            var fullName = string.Concat(new string[] { user.FirstName, " ", user.LastName });
+            string Id = user.Id;
+            var url = user.ImageUrl;
+            ViewBag.PhotoUrl = url;
+            ViewBag.UserFullName = fullName;
+            ViewBag.ProfileUpdateId = Id;
+        }
+    }
+}
+
+@if (Request.IsAuthenticated)
+{
+
+    <!-- Topbar -->
+    <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+
+        <!-- Sidebar Toggle (Topbar) -->
+        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+            <i class="fa fa-bars"></i>
+        </button>
+        @{
+            var controllerName = this.ViewContext.RouteData.Values["controller"].ToString();
+            var action = this.ViewContext.RouteData.Values["action"].ToString();
+        }
+        @if (controllerName == "Home" && action == "Index")
+        {
+            <!-- Topbar Search -->
+            <form class="d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                <div class="input-group">
+                    <input type="text" class="form-control bg-light border-0 small" placeholder="Search for customer" aria-label="Search" aria-describedby="basic-addon2" id="qcustomervalue">
+                    <div class="input-group-append">
+                        <button class="btn btn-primary fas fa-search fa-sm" id="qSearch" type="button">
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <!-- Topbar Search -->
+            <form class="d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                <div class="input-group ">
+                    <input type="text" class="form-control bg-light border-0 small datepicker gCalendarI" placeholder="Go to date" aria-describedby="basic-addon2" id="qdatevalue">
+                </div>
+            </form>
+        }
+
+        @if (controllerName == "Home" && action == "Dashboard")
+        {
+            
+            <!-- Topbar Search -->
+            <form class="d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+                <input style="min-width:240px;"  class="form-control bg-light border-0  small  mr-sm-2 gCalendarI" type="text" name="daterange" value="" />
+                <div class="d-flex">
+                    <input class="form-control bg-light border-0  small  mr-sm-2" hidden type="text" id="startdate" />
+                    <input type="text" hidden class="form-control bg-light border-0 small  ml-sm-2" id="enddate" />
+                </div>
+            </form>
+        }
+        <!-- Topbar Navbar -->
+        <ul class="navbar-nav ml-auto">
+            <!-- Nav Item - User Information -->
+            <li class="nav-item dropdown no-arrow">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="mr-2 d-none d-lg-inline text-gray-600 small">@ViewBag.UserFullName</span>
+                    @if (ViewBag.PhotoUrl == null)
+                    {
+                        <img class="img-profile" src="~/Uploads/assets/user.jpg">
+                    }
+                    else
+                    {
+                        var imagePath = "";
+                        imagePath = Url.Content(ViewBag.PhotoUrl);
+
+                        if (imagePath != "")
+                        {
+                            <img class="img-profile img-fluid" src="@imagePath">
+                        }
+                    }
+
+                </a>
+                <!-- Dropdown - User Information -->
+                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                    <a class="dropdown-item" href="@Url.Action( "ProfileUpdate", "Admin")">
+                        <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                        Profile
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
+                        <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                        Logout
+                    </a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+    <!-- End of Topbar -->
+    using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+    {
+        @Html.AntiForgeryToken()
+        <!-- Logout Modal-->
+        <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+                        <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
+                        <a href="javascript:document.getElementById('logoutForm').submit()" class="btn btn-success">Log off</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}

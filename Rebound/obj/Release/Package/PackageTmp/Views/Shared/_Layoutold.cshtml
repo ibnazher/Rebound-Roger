@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Rebound</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <link href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css" rel="stylesheet" />
+    
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-info text-white border-bottom box-shadow mb-3">
+            <div class="container">
+                @Html.ActionLink("Rebound", "Index", "Home", new { area = "" }, new { @class = "navbar-brand text-white" })
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                    @Html.Partial("_LoginPartial")
+                    <ul class="navbar-nav flex-grow-1">
+                        <li>@Html.ActionLink("Reservation", "Create", "Reservations", null, new { @class = "nav-link text-white" })</li>
+                        <li>@Html.ActionLink("Customer", "Create", "Customers", null, new { @class = "nav-link text-white" })</li>
+                        <li class="dropdown">
+                            <a data-toggle="dropdown" class="text-white nav-link" href="#">Items</a>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Add Item", "Create", "Items", null, new { @class = "nav-link text-dark" })</li>
+                                <li>@Html.ActionLink("Add Category", "Create", "Categories", null, new { @class = "nav-link text-dark" })</li>
+                            </ul>
+                        </li>
+                        <li>@Html.ActionLink("Operators", "Create", "Operators", null, new { @class = "nav-link text-white" })</li>
+
+                        <li class="dropdown">
+                            <a data-toggle="dropdown" class="text-white nav-link" href="#">Transaction</a>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Receipt", "Index", "Home", null, new { @class = "nav-link text-dark" })</li>
+                                <li>@Html.ActionLink("Report", "Index", "Home", null, new { @class = "nav-link text-dark" })</li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a data-toggle="dropdown" class="text-white nav-link" href="#">Report</a>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Receipt", "Index", "Home", null, new { @class = "nav-link text-dark" })</li>
+                                <li>@Html.ActionLink("Report", "Index", "Home", null, new { @class = "nav-link text-dark" })</li>
+                            </ul>
+                        </li>
+                        <li>@Html.ActionLink("Add Admin", "Register", "Account", null, new { @class = "nav-link text-white" })</li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container body-content">
+        @RenderBody()
+        <footer>
+            <p>&copy; @DateTime.Now.Year - Rebound</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+    <script>
+        jQuery(document).ready(function ($) {
+            if (window.jQuery().datetimepicker) {
+                $('.datetimepicker').datetimepicker({
+                    format: 'DD-MM-YYYY hh:mm A',
+
+                    // Your Icons
+                    // as Bootstrap 4 is not using Glyphicons anymore
+                    icons: {
+                        time: 'fa fa-clock-o',
+                        date: 'fa fa-calendar',
+                        up: 'fa fa-chevron-up',
+                        down: 'fa fa-chevron-down',
+                        previous: 'fa fa-chevron-left',
+                        next: 'fa fa-chevron-right',
+                        today: 'fa fa-check',
+                        clear: 'fa fa-trash',
+                        close: 'fa fa-times'
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

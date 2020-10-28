@@ -1,0 +1,38 @@
+﻿@model IEnumerable<Rebound.Models.ItemCategory>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<div class="card">
+    <div class="card-header  d-flex justify-content-between flex-wrap">
+        <h6 class="m-0 font-weight-bold text-primary mr-5">Categories </h6>
+        <a href="@Url.Action("Create","Categories")" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Category</a>
+    </div>
+    <div class="card-body">
+
+
+        <table class="table table-bordered mt-3">
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th width="100px">Action</th>
+            </tr>
+
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @item.Name
+                    </td>
+                    <td>
+                        <a class="text-warning" href="@Url.Action("Edit", "Categories", new { id = item.Id })"><i class="fas fa-edit"></i></a>
+                        <a class="text-danger" href="@Url.Action("Delete", "Categories", new { id = item.Id })"><i class="far fa-trash-alt"></i></a>
+                    </td>
+                </tr>
+            }
+
+        </table>
+    </div>
+</div>

@@ -1,0 +1,25 @@
+﻿
+@{
+    ViewBag.Title = "Unauthorized";
+}
+
+    <div class="error-page">
+        <h2 class="headline text-red">Unauthorized</h2>
+
+        <div class="error-content">
+            <h3><i class="fa fa-warning text-red"></i> You are not permitted to access this page</h3>
+            <p>
+                The page not permitted for you, try again.<br>
+                If the problem persists, contact support.
+            </p>
+            @if (Request.IsAuthenticated)
+            {
+                <a href="@Url.Action("Index", "Home")" class="btn btn-primary" role="button">Home</a>
+            }
+            else
+            {
+                <a href="@Url.Action("Login", "Account")" class="btn btn-primary" role="button">Home</a>
+            }
+        </div>
+    </div>
+

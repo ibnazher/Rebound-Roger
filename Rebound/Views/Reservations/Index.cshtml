@@ -1,0 +1,168 @@
+﻿@{
+    var TimeZoneOffset = System.Web.Configuration.WebConfigurationManager.AppSettings["TimeZoneOffset"];
+    TimeZoneOffset = TimeZoneOffset.ToString();
+}
+
+<div class="row">
+    <div class=" col-sm-12">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-sm-flex justify-content-between">
+                <h6 class="m-sm-0 font-weight-bold text-primary">Reservations</h6>
+                <div class="d-sm-flex">
+                    <div class="mr-sm-3 d-sm-flex mb-2 mb-sm-0">
+                        <input style="min-width:240px;" class="form-control bg-white border-0  small  mr-sm-2 gCalendarI" type="text" name="daterangecash" value="" />
+                        <input hidden class="form-control bg-white border-0 small datepicker mr-sm-2" type="text" id="startdate" />  <input hidden type="text" class="form-control bg-white border-0 small datepicker ml-sm-2" id="enddate" />
+                    </div>
+                </div>
+            </div>
+            <div class="card-body">
+                <table class="table table-responsive-md table-bordered p-0 m-0" id="dataTableReserve" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Start</th>
+                            <th>End</th>
+                            <th>Item</th>
+                            <th>Customer</th>
+                            <th>Mobile No.</th>
+                            <th>Amount</th>
+                            <th>Ball rent</th>
+                            <th>Billing</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+        $(function () {
+            var start = moment();
+            var end = moment();
+
+            $('input[name="daterangecash"]').daterangepicker({
+                opens: 'left',
+                startDate: start,
+                endDate: end,
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                    'This Year': [moment().startOf('year'), moment().endOf('year')],
+                }
+            }, function (start, end) {
+                $('#startdate').val(start.format('YYYY-MM-DD'));
+                $('#enddate').val(end.format('YYYY-MM-DD'));
+
+                $('#dataTableReserve').DataTable().ajax.reload();
+            });
+        });
+          function postData(id) {
+                if (id != null && confirm('Are you sure to delete this reservation?')) {
+                    $.ajax({
+                        type: "POST",
+                        url: '/home/CancelReservation',
+                        data: { 'id': id},
+                        success: function (data) {
+                            if (data.status) {
+                                $('#dataTableReserve').DataTable().ajax.reload();
+                            }
+                        },
+                        error: function () {
+                            alert('Failed');
+                        }
+                    })
+                }
+            }
+        document.addEventListener('DOMContentLoaded', function () {
+            var startYear = moment().format('MM/DD/YYYY');
+            var endYear = moment().format('MM/DD/YYYY');
+            $('#startdate').val(startYear);
+            $('#enddate').val(endYear);
+
+            $('#dataTableReserve').DataTable({
+                "order": [[0, "desc"]],
+                "ajax": {
+                    "url": "/Report/GetReserve",
+                    "data": function (d) {
+                            d.start = $('#startdate').val(),
+                            d.end = $('#enddate').val()
+                    },
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "rowCallback": function (row, data) {
+
+                    if (data.billing == "Pending") { $('td:eq(8)', row).css('background-color', 'red'); $('td:eq(8)', row).css('color', 'white'); }
+                    else { $('td:eq(8)', row).css('background-color', 'green'); $('td:eq(8)', row).css('color', 'white'); }
+
+                    if (data.status == "Upcomming") { $('td:eq(9)', row).css('background-color', 'red'); $('td:eq(9)', row).css('color', 'white'); }
+                    else { $('td:eq(9)', row).css('background-color', 'green'); $('td:eq(9)', row).css('color', 'white'); }
+                },
+                "columns": [
+                    {
+                        "data": "date",
+                        "type": "date ",
+                        "render": function (value) {
+                            if (value === null) return "";
+                            var date = moment(value).utcOffset("@TimeZoneOffset").format("dddd, Do MMM  YY");
+                            return date;
+                        }
+                    },
+                    {
+                        "data": "start",
+                        "type": "date ",
+                        "render": function (value) {
+                            if (value === null) return "";
+                            var date = moment(value).utcOffset("@TimeZoneOffset").format("hh:mm a");
+                            return date;
+                        }
+                    },
+                    {
+                        "data": "end",
+                        "type": "date ",
+                        "render": function (value) {
+                            if (value === null) return "";
+                            var date = moment(value).utcOffset("@TimeZoneOffset").format("hh:mm a");
+                            return date;
+                        }
+                    },
+                    { "data": "item" },
+                    { "data": "customer" },
+                    {"data": "mobile"},
+                    { "data": "amount" },
+                    { "data": "ball" },
+                    { "data": "billing" },
+                    { "data": "status" },
+                    {
+                        "render": function (data, type, full, meta) {
+                            return '<button class="btn btn-sm btn-danger" onclick="postData(' + full.id + ')" ><i class="fas fa-trash-alt"></i></button>';
+                        }
+                    }
+                ],
+                "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                dom: "lBftip",
+                buttons: [
+                    {
+                        extend: 'excel',
+                        className: 'Button',
+                        text: '<i class="fas fa-file-excel" aria-hidden="true"></i> Export to Excel '
+                    },
+                ],
+            });
+
+
+        });
+
+
+    </script>
+}

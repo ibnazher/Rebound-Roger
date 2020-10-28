@@ -1,0 +1,199 @@
+﻿
+@{
+    ViewBag.Title = "Monthly Report";
+}
+@{
+    var TimeZoneOffset = System.Web.Configuration.WebConfigurationManager.AppSettings["TimeZoneOffset"];
+    TimeZoneOffset = TimeZoneOffset.ToString();
+}
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3 d-sm-flex justify-content-between">
+        <h6 class="m-sm-0 font-weight-bold text-primary">Monthly Report</h6>
+        <div class="d-sm-flex">
+            <div class="mr-sm-3 d-sm-flex mb-2 mb-sm-0">
+                <input style="min-width:240px;" class="form-control bg-white border-0  small  mr-sm-2 gCalendarI" type="text" name="daterangecash" value="" />
+                <input hidden class="form-control bg-white border-0 small datepicker mr-sm-2" type="text" id="startdate" />  <input hidden type="text" class="form-control bg-white border-0 small datepicker ml-sm-2" id="enddate" />
+            </div>
+
+            <a href="@Url.Action("GetMonthlyBills","Customers")" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Monthly Transaction</a>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Voucher No</th>
+                        <th> Voucher Type</th>
+                        @*<th>Amount</th>*@
+                        <th>Debit</th>
+                        <th>Credit</th>
+                        <th>Customer</th>
+                        <th>Note</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td class="text-right">
+                            Totals (in page) :<br />
+                            Totals (all page) :
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script>
+
+
+        $(function () {
+            var start = moment();
+            var end = moment();
+
+          $('input[name="daterangecash"]').daterangepicker({
+              opens: 'left',
+               startDate: start,
+                endDate: end,
+                ranges: {
+                   'Today': [moment(), moment()],
+                   'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                   'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                   'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                   'This Month': [moment().startOf('month'), moment().endOf('month')],
+                   'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                   'This Year': [moment().startOf('year'), moment().endOf('year')],
+                }
+          }, function(start, end, label) {
+                  $('#startdate').val(start.format('YYYY-MM-DD'));
+                  $('#enddate').val(end.format('YYYY-MM-DD'));
+
+               $('#dataTable').DataTable().ajax.reload();
+          });
+        });
+
+        $(document).ready(function () {
+
+            $('.datepicker').datepicker({ format: 'YYYY-MM-DD' });
+            var startYear = moment().format('MM/DD/YYYY');
+            var endYear = moment().format('MM/DD/YYYY');
+            $('#startdate').val(startYear);
+            $('#enddate').val(endYear);
+
+            $('#dataTable').DataTable({
+
+                "footerCallback": function (row, data, start, end, display) {
+                    var api = this.api(), data;
+
+                    // Remove the formatting to get integer data for summation
+                    var intVal = function (i) {
+                        return typeof i === 'string' ?
+                            i.replace(/[\$,]/g, '') * 1 :
+                            typeof i === 'number' ?
+                                i : 0;
+                    };
+
+                    // Total over all pages
+                    total = api
+                        .column(3)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    // Total over this page
+                    pageTotal = api
+                        .column(3, { page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+
+                    // Total over all pages
+                    total2 = api
+                        .column(4)
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    // Total over this page
+                    pageTotal2 = api
+                        .column(4, { page: 'current' })
+                        .data()
+                        .reduce(function (a, b) {
+                            return intVal(a) + intVal(b);
+                        }, 0);
+
+                    balance = total - total2;
+                    // Update footer
+                    $(api.column(3).footer()).html(
+                        '(LBP)' + pageTotal + '</br> <i>(LBP)' + total + '</i>'
+                    );
+                    // Update footer
+                    $(api.column(4).footer()).html(
+                        '(LBP)' + pageTotal2 + '</br> <i>(LBP)' + total2 + '</i>'
+                    );
+                    $(api.column(5).footer()).html(
+                       ' <strong style="font-size:20px;color:red">Cash:(LBP)'+balance +'</strong>'
+                    );
+                },
+
+                "order": [[1, "desc"]],
+                "ajax": {
+                    "url": "/Report/GetMonthly",
+                    "data": function (d) {
+                        d.start = $('#startdate').val(),
+                            d.end = $('#enddate').val()
+                    },
+                    "type": "GET",
+                    "datatype": "json"
+                },
+                "columns": [
+                    {
+                        "data": "CreatedOn",
+                       "type": "date ",
+                        "render": function (value) {
+                            if (value === null) return "";
+
+
+                            return moment(value).utcOffset("@TimeZoneOffset").format("dddd, Do MMM  YY");
+                        }
+                    },
+                    { "data": "VoucherNo" },
+                    { "data": "VoucherType" },
+                    //{ "data": "TrasactionalAmount" },
+                    { "data": "DebitAmount" },
+                    { "data": "CreditAmount" },
+                    { "data": "Customer" },
+                    //{ "data": "Cbalance" },
+                    { "data": "Narration" },
+                ],
+                "lengthMenu": [[-1, 10, 25, 50], ["All",10, 25, 50]],
+                dom: "lBftip",
+                buttons: [
+                    {
+                        extend: 'excel',
+                        className: 'Button',
+                        text: '<i class="fas fa-file-excel" aria-hidden="true"></i> Export to Excel '
+                    },
+                ],
+            });
+
+        });
+    </script>
+}
